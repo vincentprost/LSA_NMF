@@ -71,6 +71,7 @@ if __name__ == "__main__":
 		FP = glob.glob(os.path.join(inputdir,'*.' + suffix))
 	if len(FP) == 0:
 		suffix = 'fa'
+		fastq = False
 		FP = glob.glob(os.path.join(inputdir,'*.'+ suffix + '.*'))
 		if len(FP) == 0:
 			# single file per-sample

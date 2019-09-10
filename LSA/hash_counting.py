@@ -18,6 +18,10 @@ class Hash_Counting(LSA):
 			FP = glob.glob(os.path.join(self.output_path,fileprefix+'.*.hashq.*'))
 			if len(FP) == 0:
 				print 'WARNING: no files like %s.*.hashq.* found' % fileprefix
+				FP = glob.glob(os.path.join(self.output_path,fileprefix + '.hashq.*'))
+				if len(FP) == 0:
+					print 'WARNING: no files like %s.hashq.* found' % fileprefix
+
 			# SUPER DUMB to hardcode the number of fractions (5)
 			FPsplits = [FP[i::5] for i in range(5)]
 			FP = FPsplits[multi_files_fraction]
@@ -31,7 +35,9 @@ class Hash_Counting(LSA):
 				for a in self.hash_read_generator(f):
 					try:
 						for b in a[2]:
-							H[b] = min(65535,H[b]+1)
+							H[b] = min(65535, H[b]+1)
+							#if H[b] == 65535:
+							#	print( "we hit the limit of c_uint16")
 					except Exception,err:
 						print Exception,str(err)
 				f.close()
@@ -42,6 +48,7 @@ class Hash_Counting(LSA):
 			f0.write(H)
 			f0.close()
 		return H
+
 
 	def merge_count_fractions(self,fileprefix):
 		H = (c_uint16*2**self.hash_size)()
@@ -62,6 +69,7 @@ class Hash_Counting(LSA):
 		for fp in FP:
 			os.system('rm '+fp)
 		return H
+
 
 	def open_count_hash(self,file_path):
 		f = open(file_path,'rb')

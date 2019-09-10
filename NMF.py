@@ -16,7 +16,6 @@ wd = ""
 
 
 
-
 parser = argparse.ArgumentParser(description='Optional app description')
 
 
@@ -29,26 +28,29 @@ parser.add_argument('-o', '--outputdir', type=str,
 
 
 parser.add_argument('-cn', '--cluster_number', type=int, default = 200,
-                    help='output folder')
+                    help='cluster number')
 
 
 parser.add_argument('-l1', '--lambda1', type=float, default=0.1,
-                    help='output folder')
+                    help='lambda1')
 
 
 parser.add_argument('-l2', '--lambda2', type=float, default=0.05,
-                    help='output folder')
+                    help='lambda2')
 
 parser.add_argument('-p', '--cpu', type=int, default=1,
-                    help='output folder')
+                    help='cpu')
+
+
+parser.add_argument('-it', '--iter_nb', type=int, default=5000,
+                    help='iteration number')
+
+parser.add_argument('-b', '--batchsize', type=int, default=1000,
+                    help='batchsize')
 
 
 
 
-
-
-iter_nb = 1000
-batchsize = 100
 memory_limit = 8e9 # bytes
 
 
@@ -59,7 +61,6 @@ args = parser.parse_args()
 f= open(args.outputdir + "/numClusters.txt","w")
 f.write(str(args.cluster_number))
 f.close()
-
 
 
 
@@ -83,10 +84,8 @@ print(submatrix_size)
 print(nzi)
 
 
-
-
 print("dictionnary learning...")
-submatrix_iterations =  int(iter_nb * batchsize / (0.2 * submatrix_size)) + 1
+submatrix_iterations =  int(args.iter_nb * args.batchsize / (0.2 * submatrix_size)) + 1
 submatrix_size = min(nzi, submatrix_size)
 print("submatrix iteration : " + str(submatrix_iterations))
 
@@ -106,13 +105,12 @@ for k in range(submatrix_iterations):
 	submatrix = submatrix / np.sqrt(np.sum(submatrix * submatrix, 0))
 
 	D = spams.trainDL(submatrix, D = D, K = args.cluster_number, lambda1 = args.lambda1, lambda2 = args.lambda2, 
-		posAlpha = True, posD = True, rho = 1.0, iter = iter_nb, batchsize = batchsize, numThreads = cpu)
+		posAlpha = True, posD = True, rho = 1.0, iter = args.iter_nb, batchsize = args.batchsize, numThreads = cpu)
 
 
 
 np.save(args.outputdir + "cluster_index.npy", D.T)
-
-
+print(D)
 
 
 print("cluster kmers")
@@ -121,9 +119,6 @@ cluster_cols = np.zeros(2**hash_size, dtype = 'uint16')
 submatrix_size = int(memory_limit / (4 * (args.cluster_number + n)))
 submatrix_iterations =  int(nzi / submatrix_size) + 1
 submatrix_size = min(nzi, submatrix_size)
-
-
-
 
 
 
